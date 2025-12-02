@@ -84,7 +84,7 @@ housing = strat_train_set.copy()
 housing.plot(kind="scatter", x="longitude", y="latitude")
 housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.1)
 
-corr_matrix = housing.corr()
+corr_matrix = housing.corr(numeric_only=True)
 corr_matrix["median_house_value"].sort_values(ascending=False)
 housing["rooms_per_household"] = housing["total_rooms"] / housing["households"]
 housing["bedrooms_per_room"] = housing["total_bedrooms"] / housing["total_rooms"]
@@ -126,7 +126,8 @@ lin_rmse = np.sqrt(lin_mse)
 
 
 lin_mae = mean_absolute_error(housing_labels, housing_predictions)
-
+print(f"Linear regression RSME : {round(lin_rmse,3)}")
+print(f"Linear regression MAE : {round(lin_mae,3)}")
 
 tree_reg = DecisionTreeRegressor(random_state=42)
 tree_reg.fit(housing_prepared, housing_labels)
@@ -134,7 +135,7 @@ tree_reg.fit(housing_prepared, housing_labels)
 housing_predictions = tree_reg.predict(housing_prepared)
 tree_mse = mean_squared_error(housing_labels, housing_predictions)
 tree_rmse = np.sqrt(tree_mse)
-tree_rmse
+print(f"Decision Tree RSME : {round(tree_rmse,3)}")
 
 
 param_distribs = {
@@ -211,3 +212,4 @@ X_test_prepared = X_test_prepared.join(pd.get_dummies(X_test_cat, drop_first=Tru
 final_predictions = final_model.predict(X_test_prepared)
 final_mse = mean_squared_error(y_test, final_predictions)
 final_rmse = np.sqrt(final_mse)
+print(f"Best Model (Random Forest) RSME : {round(final_rmse,3)}")
