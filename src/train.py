@@ -26,7 +26,7 @@ Inputs (via argparse arguments)
     Default: config.log_path
 
 -v / --verbose : str
-    Whether logs should also be printed to the console.
+    Whether logs should also be printed.
     Allowed: Y, N
     Default: "Y"
 
@@ -51,14 +51,10 @@ Run from terminal:
 
 import argparse
 import os
-import sys
-from datetime import datetime
 from scipy.stats import randint
-
-import joblib
-
-import numpy as np
 import pandas as pd
+import joblib
+from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
@@ -68,7 +64,7 @@ import config
 from utils import get_logger
 
 
-def train_model(train_data_set_path, model_name=None):
+def train_model(train_data_set_path, model_name, logger):
     """This function is use to train model on the given data and
     returns trained_model pickle files to artifacts.
 
@@ -213,7 +209,7 @@ if __name__ == "__main__":
     logger.info("train_file_loc:{}".format(args.train_data_path))
     logger.info("model_selection:{}".format(args.model_name))
 
-    model = train_model(args.train_data_path, args.model_name)
+    model = train_model(args.train_data_path, args.model_name, logger)
 
     logger.info("data training end")
 
