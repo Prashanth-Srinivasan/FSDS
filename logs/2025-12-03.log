@@ -1,0 +1,249 @@
+2025-12-03 14:58:32 | INFO | ingest_data.py | output to console Y
+2025-12-03 14:58:32 | INFO | ingest_data.py | train_data_path:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train
+2025-12-03 14:58:32 | INFO | ingest_data.py | test_data_path:D:\FSDS\FSDS_Assignment\FSDS\data\processed\test
+2025-12-03 14:58:32 | INFO | ingest_data.py | fetched data size (20640, 10)
+2025-12-03 14:58:32 | INFO | ingest_data.py | starting train-test split with test size 0.2
+2025-12-03 14:58:33 | INFO | ingest_data.py | completed train-test split with train_size (16512, 17) and test_size (4128, 17)
+2025-12-03 14:58:33 | INFO | ingest_data.py | execution time for ingest_data script 0s
+2025-12-03 14:58:58 | INFO | ingest_data.py | output to console Y
+2025-12-03 14:58:58 | INFO | ingest_data.py | train_data_path:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train
+2025-12-03 14:58:58 | INFO | ingest_data.py | test_data_path:D:\FSDS\FSDS_Assignment\FSDS\data\processed\test
+2025-12-03 14:58:58 | INFO | ingest_data.py | fetched data size (20640, 10)
+2025-12-03 14:58:58 | INFO | ingest_data.py | starting train-test split with test size 0.2
+2025-12-03 14:58:59 | INFO | ingest_data.py | completed train-test split with train_size (16512, 17) and test_size (4128, 17)
+2025-12-03 14:58:59 | INFO | ingest_data.py | execution time for ingest_data script 0s
+2025-12-03 15:04:10 | INFO | ingest_data.py | output to console Y
+2025-12-03 15:04:10 | INFO | ingest_data.py | fetching housing data from https://raw.githubusercontent.com/ageron/handson-ml/master/datasets/housing/housing.tgz
+2025-12-03 15:04:11 | WARNING | ingest_data.py | Download failed, switching to local copy. Error: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: CA cert does not include key usage extension (_ssl.c:1028)>
+Traceback (most recent call last):
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 1319, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              encode_chunked=req.has_header('Transfer-encoding'))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1338, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1384, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1333, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1093, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1037, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1479, in connect
+    self.sock = self._context.wrap_socket(self.sock,
+                ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+                                          server_hostname=server_hostname)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\ssl.py", line 455, in wrap_socket
+    return self.sslsocket_class._create(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sock=sock,
+        ^^^^^^^^^^
+    ...<5 lines>...
+        session=session
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Program Files\Python313\Lib\ssl.py", line 1076, in _create
+    self.do_handshake()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Program Files\Python313\Lib\ssl.py", line 1372, in do_handshake
+    self._sslobj.do_handshake()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: CA cert does not include key usage extension (_ssl.c:1028)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\FSDS\FSDS_Assignment\FSDS\src\ingest_data.py", line 244, in <module>
+    fetch_housing_data()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "D:\FSDS\FSDS_Assignment\FSDS\src\ingest_data.py", line 91, in fetch_housing_data
+    urllib.request.urlretrieve(housing_url, tgz_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 214, in urlretrieve
+    with contextlib.closing(urlopen(url, data)) as fp:
+                            ~~~~~~~^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 189, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 489, in open
+    response = self._open(req, data)
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 506, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+                              '_open', req)
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 466, in _call_chain
+    result = func(*args)
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 1367, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        context=self._context)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 1322, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: CA cert does not include key usage extension (_ssl.c:1028)>
+2025-12-03 15:04:11 | INFO | ingest_data.py | train_data_path:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train
+2025-12-03 15:04:11 | INFO | ingest_data.py | test_data_path:D:\FSDS\FSDS_Assignment\FSDS\data\processed\test
+2025-12-03 15:04:11 | INFO | ingest_data.py | fetched data size (20640, 10)
+2025-12-03 15:04:11 | INFO | ingest_data.py | starting train-test split with test size 0.2
+2025-12-03 15:04:12 | INFO | ingest_data.py | completed train-test split with train_size (16512, 17) and test_size (4128, 17)
+2025-12-03 15:04:12 | INFO | ingest_data.py | execution time for ingest_data script 1s
+2025-12-03 15:52:19 | INFO | ingest_data.py | Data Training Starts
+2025-12-03 15:52:19 | INFO | ingest_data.py | train_file_loc:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train\train.csv
+2025-12-03 15:52:19 | INFO | ingest_data.py | model_selection:lr
+2025-12-03 15:52:49 | INFO | ingest_data.py | Data Training Starts
+2025-12-03 15:52:49 | INFO | ingest_data.py | train_file_loc:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train\train.csv
+2025-12-03 15:52:49 | INFO | ingest_data.py | model_selection:lr
+2025-12-03 15:52:49 | INFO | ingest_data.py | train data extracted (16512, 17)
+2025-12-03 15:52:49 | INFO | ingest_data.py | x_data (16512, 16), Y_data (16512,)
+2025-12-03 15:52:49 | INFO | ingest_data.py | Passed data check
+2025-12-03 15:52:49 | INFO | ingest_data.py | model_selected : lr
+2025-12-03 15:52:49 | INFO | ingest_data.py | Linear model learning starts
+2025-12-03 15:52:49 | INFO | ingest_data.py | linear model learning end
+2025-12-03 15:52:49 | INFO | ingest_data.py | data training end
+2025-12-03 15:52:49 | INFO | ingest_data.py | model_output_loc:D:\FSDS\FSDS_Assignment\FSDS\artifacts\lr_2025-12-03.pkl
+2025-12-03 15:52:49 | INFO | ingest_data.py | model saved completed
+2025-12-03 15:52:49 | INFO | ingest_data.py | execution time for ingest_data script 0s
+2025-12-03 15:53:17 | INFO | train.py | Data Training Starts
+2025-12-03 15:53:17 | INFO | train.py | train_file_loc:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train\train.csv
+2025-12-03 15:53:17 | INFO | train.py | model_selection:lr
+2025-12-03 15:53:17 | INFO | train.py | train data extracted (16512, 17)
+2025-12-03 15:53:17 | INFO | train.py | x_data (16512, 16), Y_data (16512,)
+2025-12-03 15:53:17 | INFO | train.py | Passed data check
+2025-12-03 15:53:17 | INFO | train.py | model_selected : lr
+2025-12-03 15:53:17 | INFO | train.py | Linear model learning starts
+2025-12-03 15:53:17 | INFO | train.py | linear model learning end
+2025-12-03 15:53:17 | INFO | train.py | data training end
+2025-12-03 15:53:17 | INFO | train.py | model_output_loc:D:\FSDS\FSDS_Assignment\FSDS\artifacts\lr_2025-12-03.pkl
+2025-12-03 15:53:17 | INFO | train.py | model saved completed
+2025-12-03 15:53:17 | INFO | train.py | execution time for ingest_data script 0s
+2025-12-03 15:53:56 | INFO | train.py | Data Training Starts
+2025-12-03 15:53:56 | INFO | train.py | train_file_loc:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train\train.csv
+2025-12-03 15:53:56 | INFO | train.py | model_selection:dtr
+2025-12-03 15:53:56 | INFO | train.py | train data extracted (16512, 17)
+2025-12-03 15:53:56 | INFO | train.py | x_data (16512, 16), Y_data (16512,)
+2025-12-03 15:53:56 | INFO | train.py | Passed data check
+2025-12-03 15:53:56 | INFO | train.py | model_selected : dtr
+2025-12-03 15:53:56 | INFO | train.py | decision tree model train initiated
+2025-12-03 15:53:56 | INFO | train.py | decision tree model train end
+2025-12-03 15:53:56 | INFO | train.py | data training end
+2025-12-03 15:53:56 | INFO | train.py | model_output_loc:D:\FSDS\FSDS_Assignment\FSDS\artifacts\dtr_2025-12-03.pkl
+2025-12-03 15:53:56 | INFO | train.py | model saved completed
+2025-12-03 15:53:56 | INFO | train.py | execution time for ingest_data script 0s
+2025-12-03 15:54:09 | INFO | train.py | Data Training Starts
+2025-12-03 15:54:09 | INFO | train.py | train_file_loc:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train\train.csv
+2025-12-03 15:54:09 | INFO | train.py | model_selection:rfr_rs
+2025-12-03 15:54:09 | INFO | train.py | train data extracted (16512, 17)
+2025-12-03 15:54:09 | INFO | train.py | x_data (16512, 16), Y_data (16512,)
+2025-12-03 15:54:09 | INFO | train.py | Passed data check
+2025-12-03 15:54:09 | INFO | train.py | model_selected : rfr_rs
+2025-12-03 15:55:21 | INFO | train.py | Data Training Starts
+2025-12-03 15:55:21 | INFO | train.py | train_file_loc:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train\train.csv
+2025-12-03 15:55:21 | INFO | train.py | model_selection:rfr_rs
+2025-12-03 15:55:21 | INFO | train.py | train data extracted (16512, 17)
+2025-12-03 15:55:21 | INFO | train.py | x_data (16512, 16), Y_data (16512,)
+2025-12-03 15:55:21 | INFO | train.py | Passed data check
+2025-12-03 15:55:21 | INFO | train.py | model_selected : rfr_rs
+2025-12-03 15:55:21 | INFO | train.py | random forest - random search model train start
+2025-12-03 15:57:01 | INFO | train.py | Data Training Starts
+2025-12-03 15:57:01 | INFO | train.py | train_file_loc:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train\train.csv
+2025-12-03 15:57:01 | INFO | train.py | model_selection:rfr_rs
+2025-12-03 15:57:01 | INFO | train.py | train data extracted (16512, 17)
+2025-12-03 15:57:01 | INFO | train.py | x_data (16512, 16), Y_data (16512,)
+2025-12-03 15:57:01 | INFO | train.py | Passed data check
+2025-12-03 15:57:01 | INFO | train.py | model_selected : rfr_rs
+2025-12-03 15:57:01 | INFO | train.py | random forest - random search model train start
+2025-12-03 16:01:21 | INFO | train.py | random forest - random search model train end
+2025-12-03 16:01:21 | INFO | train.py | data training end
+2025-12-03 16:01:22 | INFO | train.py | model_output_loc:D:\FSDS\FSDS_Assignment\FSDS\artifacts\rfr_rs_2025-12-03.pkl
+2025-12-03 16:01:22 | INFO | train.py | model saved completed
+2025-12-03 16:01:22 | INFO | train.py | execution time for ingest_data script 260s
+2025-12-03 16:06:40 | INFO | ingest_data.py | fetching housing data from https://raw.githubusercontent.com/ageron/handson-ml/master/datasets/housing/housing.tgz
+2025-12-03 16:06:41 | WARNING | ingest_data.py | Download failed, switching to local copy. Error: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: CA cert does not include key usage extension (_ssl.c:1028)>
+Traceback (most recent call last):
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 1319, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              encode_chunked=req.has_header('Transfer-encoding'))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1338, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1384, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1333, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1093, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1037, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Program Files\Python313\Lib\http\client.py", line 1479, in connect
+    self.sock = self._context.wrap_socket(self.sock,
+                ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+                                          server_hostname=server_hostname)
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\ssl.py", line 455, in wrap_socket
+    return self.sslsocket_class._create(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sock=sock,
+        ^^^^^^^^^^
+    ...<5 lines>...
+        session=session
+        ^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Program Files\Python313\Lib\ssl.py", line 1076, in _create
+    self.do_handshake()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Program Files\Python313\Lib\ssl.py", line 1372, in do_handshake
+    self._sslobj.do_handshake()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: CA cert does not include key usage extension (_ssl.c:1028)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\FSDS\FSDS_Assignment\FSDS\src\ingest_data.py", line 233, in <module>
+    fetch_housing_data()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "D:\FSDS\FSDS_Assignment\FSDS\src\ingest_data.py", line 87, in fetch_housing_data
+    urllib.request.urlretrieve(housing_url, tgz_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 214, in urlretrieve
+    with contextlib.closing(urlopen(url, data)) as fp:
+                            ~~~~~~~^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 189, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 489, in open
+    response = self._open(req, data)
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 506, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+                              '_open', req)
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 466, in _call_chain
+    result = func(*args)
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 1367, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        context=self._context)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python313\Lib\urllib\request.py", line 1322, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: CA cert does not include key usage extension (_ssl.c:1028)>
+2025-12-03 16:06:41 | INFO | ingest_data.py | train_data_path:D:\FSDS\FSDS_Assignment\FSDS\data\processed\train
+2025-12-03 16:06:41 | INFO | ingest_data.py | test_data_path:D:\FSDS\FSDS_Assignment\FSDS\data\processed\test
+2025-12-03 16:06:41 | INFO | ingest_data.py | fetched data size (20640, 10)
+2025-12-03 16:06:41 | INFO | ingest_data.py | starting train-test split with test size 0.2
+2025-12-03 16:06:42 | INFO | ingest_data.py | completed train-test split with train_size (16512, 17) and test_size (4128, 17)
+2025-12-03 16:06:42 | INFO | ingest_data.py | execution time for ingest_data script 2s
