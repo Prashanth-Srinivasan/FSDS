@@ -60,8 +60,8 @@ from six.moves import urllib
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
 
-import config
-from utils import get_logger
+from src import config
+from src.utils import get_logger
 
 
 def fetch_housing_data(

@@ -61,8 +61,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-import config
-from utils import get_logger
+from src import config
+from src.utils import get_logger
 
 
 def predict_result(model_path, test_data_path, logger):

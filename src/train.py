@@ -60,8 +60,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.tree import DecisionTreeRegressor
 
-import config
-from utils import get_logger
+from src import config
+from src.utils import get_logger
 
 
 def train_model(train_data_set_path, model_name, logger):
