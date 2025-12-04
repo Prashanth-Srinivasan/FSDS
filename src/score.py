@@ -53,7 +53,6 @@ Run from terminal:
 
 import argparse
 import os
-import sys
 from datetime import datetime
 
 import joblib
@@ -65,7 +64,7 @@ from src import config
 from src.utils import get_logger
 
 
-def predict_result(model_path, test_data_path, logger):
+def predict_result(model_path, test_data_path, logger_fn):
     """This function is use to predict result on the test_data and
     returns predicted_result
 
@@ -86,39 +85,43 @@ def predict_result(model_path, test_data_path, logger):
     y_test = data["median_house_value"]
     x_test = data.drop("median_house_value", axis=1)
 
-    logger.info("data extracted {}".format(data.shape))
+    logger_fn.info("data extracted %s", data.shape)
 
     if x_test.shape[0] == y_test.shape[0]:
-        logger.info("test data check passed")
+        logger_fn.info("test data check passed")
     else:
-        logger.info("test data check failed")
+        logger_fn.info("test data check failed")
 
     model = joblib.load(model_path)
 
     model_name = model_path.split("/")[-1].split(".pkl")[0]
 
-    logger.info("model picked : {}".format(model_name))
+    logger_fn.info("model picked: %s", model_name)
 
     pred_result = model.predict(x_test)
-    logger.info("prediction done for x_test")
+    logger_fn.info("prediction done for x_test")
 
     if "rfr" in model_name:
         cvres = model.cv_results_
         for mean_score, params in zip(cvres["mean_test_score"], cvres["params"]):
-            logger.info(
-                "model_name:{},rmse_score: {},params: {}".format(
-                    model_name, np.sqrt(-mean_score), params
-                )
+            logger_fn.info(
+                "model_name: %s, rmse_score: %s, params: %s",
+                model_name,
+                np.sqrt(-mean_score),
+                params,
             )
+
     else:
         result_mse = mean_squared_error(y_test, pred_result)
         result_rmse = np.sqrt(result_mse)
         result_mae = mean_absolute_error(y_test, pred_result)
-        logger.info(
-            "model_name: {},rmse_score: {},mae_score: {}".format(
-                model_name, result_rmse, result_mae
-            )
+        logger_fn.info(
+            "model_name: %s, rmse_score: %s, mae_score: %s",
+            model_name,
+            result_rmse,
+            result_mae,
         )
+
     data[model_name + "_predictions"] = pred_result
     return data
 
@@ -170,11 +173,17 @@ if __name__ == "__main__":
     logger = get_logger("score.py", args.log_file_path, console=True)
 
     logger.info("Scoring Starts")
-    logger.info("log_file_location:{}".format(args.log_file_path))
-    logger.info("test_file_loc:{}".format(args.test_data_path))
-    logger.info("model folder location {}".format(args.model_folder))
-    logger.info("model_selection:{}".format(args.model_name))
-    logger.info("output_path:{}".format(config.output_path))
+    logger.info("log_file_location: %s", args.log_file_path)
+    logger.info("test_file_loc: %s", args.test_data_path)
+    logger.info("model_folder_location: %s", args.model_folder)
+    logger.info("model_selection: %s", args.model_name)
+    logger.info("output_path: %s", config.output_path)
+
+    # logger.info("log_file_location:{}".format(args.log_file_path))
+    # logger.info("test_file_loc:{}".format(args.test_data_path))
+    # logger.info("model folder location {}".format(args.model_folder))
+    # logger.info("model_selection:{}".format(args.model_name))
+    # logger.info(f"output_path:{}".format(config.output_path))
 
     predicted_data = predict_result(
         os.path.join(args.model_folder, args.model_name),
@@ -191,18 +200,14 @@ if __name__ == "__main__":
         ),
         index=False,
     )
-    logger.info(
-        "prediction result saved :{}".format(
-            os.path.join(
-                config.output_path,
-                args.model_name.split(".pkl")[0] + "_predictions.csv",
-            )
-        )
+    pred_path = os.path.join(
+        config.output_path,
+        args.model_name.split(".pkl")[0] + "_predictions.csv",
     )
+
+    logger.info("prediction result saved: %s", pred_path)
+
     logger.info("Scoring Ends")
     end = datetime.now()
-    logger.info(
-        "execution time for ingest_data script {}s".format(
-            round((end - start).seconds, 4)
-        )
-    )
+    exec_time = round((end - start).seconds, 4)
+    logger.info("execution time for ingest_data script %s s", exec_time)

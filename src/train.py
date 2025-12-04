@@ -51,10 +51,10 @@ Run from terminal:
 
 import argparse
 import os
+from datetime import datetime
 from scipy.stats import randint
 import pandas as pd
 import joblib
-from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
@@ -64,7 +64,7 @@ from src import config
 from src.utils import get_logger
 
 
-def train_model(train_data_set_path, model_name, logger):
+def train_model(train_data_set_path, model_name, logger_fn):
     """This function is use to train model on the given data and
     returns trained_model pickle files to artifacts.
 
@@ -85,27 +85,27 @@ def train_model(train_data_set_path, model_name, logger):
     y_label = train_data["median_house_value"]
     x_label = train_data.drop("median_house_value", axis=1)
 
-    logger.info("train data extracted {}".format(train_data.shape))
-    logger.info("x_data {}, Y_data {}".format(x_label.shape, y_label.shape))
+    logger_fn.info("train data extracted %s", train_data.shape)
+    logger_fn.info("x_data %s, Y_data %s", x_label.shape, y_label.shape)
 
     if x_label.shape[0] == y_label.shape[0]:
-        logger.info("Passed data check")
+        logger_fn.info("Passed data check")
     else:
-        logger.info("failed data check")
+        logger_fn.info("failed data check")
 
-    logger.info("model_selected : {}".format(model_name))
+    logger_fn.info("model_selected: %s", model_name)
 
     if model_name == "lr":
         lr = LinearRegression()
-        logger.info("Linear model learning starts")
+        logger_fn.info("Linear model learning starts")
         lr.fit(x_label, y_label)
-        logger.info("linear model learning end")
+        logger_fn.info("linear model learning end")
         return lr
     elif model_name == "dtr":
         dtr = DecisionTreeRegressor(random_state=42)
-        logger.info("decision tree model train initiated")
+        logger_fn.info("decision tree model train initiated")
         dtr.fit(x_label, y_label)
-        logger.info("decision tree model train end")
+        logger_fn.info("decision tree model train end")
         return dtr
     elif model_name == "rfr_rs":
         param_distribs = {
@@ -122,9 +122,9 @@ def train_model(train_data_set_path, model_name, logger):
             scoring="neg_mean_squared_error",
             random_state=42,
         )
-        logger.info("random forest - random search model train start")
+        logger_fn.info("random forest - random search model train start")
         rnd_search.fit(x_label, y_label)
-        logger.info("random forest - random search model train end")
+        logger_fn.info("random forest - random search model train end")
         return rnd_search
     elif model_name == "rfr_gs":
         param_grid = [
@@ -149,9 +149,9 @@ def train_model(train_data_set_path, model_name, logger):
             scoring="neg_mean_squared_error",
             return_train_score=True,
         )
-        logger.info("random forest - grid search model train start")
+        logger_fn.info("random forest - grid search model train start")
         grid_search.fit(x_label, y_label)
-        logger.info("random forest - grid search model train end")
+        logger_fn.info("random forest - grid search model train end")
         return grid_search
     else:
         return None
@@ -206,8 +206,8 @@ if __name__ == "__main__":
     logger = get_logger("train.py", args.log_file_path, console=True)
 
     logger.info("Data Training Starts")
-    logger.info("train_file_loc:{}".format(args.train_data_path))
-    logger.info("model_selection:{}".format(args.model_name))
+    logger.info("train_file_loc: %s", args.train_data_path)
+    logger.info("model_selection: %s", args.model_name)
 
     model = train_model(args.train_data_path, args.model_name, logger)
 
@@ -216,13 +216,10 @@ if __name__ == "__main__":
     final_model = args.model_name + "_" + str(datetime.now().date()) + ".pkl"
 
     joblib.dump(model, os.path.join(args.output_folder, final_model))
-    logger.info(
-        "model_output_loc:{}".format(os.path.join(args.output_folder, final_model))
-    )
+    model_path = os.path.join(args.output_folder, final_model)
+    logger.info("model_output_loc: %s", model_path)
     logger.info("model saved completed")
+
     end = datetime.now()
-    logger.info(
-        "execution time for ingest_data script {}s".format(
-            round((end - start).seconds, 4)
-        )
-    )
+    exec_time = round((end - start).seconds, 4)
+    logger.info("execution time for ingest_data script %s s", exec_time)

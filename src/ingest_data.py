@@ -50,10 +50,9 @@ Run from terminal:
 
 import argparse
 import os
-import sys
 import tarfile
 from datetime import datetime
-
+from urllib.error import URLError
 import numpy as np
 import pandas as pd
 from six.moves import urllib
@@ -118,25 +117,26 @@ def data_train_test_split(housing_data):
     Returns:
         train_set,test_set: Dataframes
     """
-    housing = housing_data.copy()
 
-    housing["income_cat"] = pd.cut(
-        housing["median_income"],
+    housing_data["income_cat"] = pd.cut(
+        housing_data["median_income"],
         bins=[0.0, 1.5, 3.0, 4.5, 6.0, np.inf],
         labels=[1, 2, 3, 4, 5],
     )
 
-    housing_labels = housing["median_house_value"].copy()
-    housing = housing.drop("median_house_value", axis=1)
+    housing_labels = housing_data["median_house_value"].copy()
+    housing_data = housing_data.drop("median_house_value", axis=1)
 
     imputer = SimpleImputer(strategy="median")
 
-    housing_num = housing.drop("ocean_proximity", axis=1)
+    housing_num = housing_data.drop("ocean_proximity", axis=1)
 
     imputer.fit(housing_num)
-    X = imputer.transform(housing_num)
+    temp_x = imputer.transform(housing_num)
 
-    housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing.index)
+    housing_tr = pd.DataFrame(
+        temp_x, columns=housing_num.columns, index=housing_data.index
+    )
     housing_tr["rooms_per_household"] = (
         housing_tr["total_rooms"] / housing_tr["households"]
     )
@@ -147,12 +147,12 @@ def data_train_test_split(housing_data):
         housing_tr["population"] / housing_tr["households"]
     )
 
-    housing_cat = housing[["ocean_proximity"]]
+    housing_cat = housing_data[["ocean_proximity"]]
     housing_prepared = housing_tr.join(pd.get_dummies(housing_cat, drop_first=True))
 
     housing_final = housing_prepared.join(housing_labels)
 
-    train_set, test_set = train_test_split(
+    train_data, test_data = train_test_split(
         housing_final, test_size=0.2, random_state=42
     )
 
@@ -160,29 +160,29 @@ def data_train_test_split(housing_data):
     for train_index, test_index in split.split(
         housing_final, housing_final["income_cat"]
     ):
-        strat_train_set = housing_final.loc[train_index]
-        strat_test_set = housing_final.loc[test_index]
+        strat_train_data = housing_final.loc[train_index]
+        strat_test_data = housing_final.loc[test_index]
 
     os.makedirs(config.train_housing_path, exist_ok=True)
     os.makedirs(config.test_housing_path, exist_ok=True)
-    train_set.to_csv(
+    train_data.to_csv(
         os.path.join(config.train_housing_path, "train.csv"),
         index=False,
     )
-    test_set.to_csv(
+    test_data.to_csv(
         os.path.join(config.test_housing_path, "test.csv"),
         index=False,
     )
-    strat_train_set.to_csv(
+    strat_train_data.to_csv(
         os.path.join(config.train_housing_path, "strat_train.csv"),
         index=False,
     )
-    strat_test_set.to_csv(
+    strat_test_data.to_csv(
         os.path.join(config.test_housing_path, "strat_test.csv"),
         index=False,
     )
 
-    return train_set, test_set, strat_train_set, strat_test_set
+    return train_data, test_data, strat_train_data, strat_test_data
 
 
 if __name__ == "__main__":
@@ -229,30 +229,33 @@ if __name__ == "__main__":
     print("passed args")
 
     try:
-        logger.info("fetching housing data from {}".format(config.housing_url))
+        logger.info("fetching housing data from %s", config.housing_url)
         fetch_housing_data()
         logger.info("fetching data completed")
-    except Exception as e:
+    except URLError as e:
         logger.warning(
-            f"Download failed, switching to local copy. Error: {e}", exc_info=True
+            "Download failed, switching to local copy. Error: %s",
+            e,
+            exc_info=True,
         )
 
     housing = load_housing_data()
-    logger.info("train_data_path:{}".format(args.train_data_path))
-    logger.info("test_data_path:{}".format(args.test_data_path))
-    logger.info("fetched data size {}".format(housing.shape))
+    logger.info("train_data_path: %s", args.train_data_path)
+    logger.info("test_data_path: %s", args.test_data_path)
+    logger.info("fetched data size %s", housing.shape)
     logger.info("starting train-test split with test size 0.2")
     train_set, test_set, strat_train_set, strat_test_set = data_train_test_split(
         housing
     )
     logger.info(
-        "completed train-test split with train_size {} and test_size {}".format(
-            train_set.shape, test_set.shape
-        )
+        "completed train-test split with train_size %s and test_size %s",
+        train_set.shape,
+        test_set.shape,
     )
+
     end = datetime.now()
+    exec_time = round((end - start).seconds, 4)
     logger.info(
-        "execution time for ingest_data script {}s".format(
-            round((end - start).seconds, 4)
-        )
+        "execution time for ingest_data script %s s",
+        exec_time,
     )
