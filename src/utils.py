@@ -1,3 +1,10 @@
+"""
+utils.py
+--------------
+This script contains utility functions that are used across the modules.
+
+"""
+
 import logging
 import os
 from datetime import datetime

@@ -46,6 +46,9 @@ def mock_logger():
 
 
 def test_train_model_lr(train_csv_path, mock_logger):
+    """
+    test case for lr model validation
+    """
     model = train_model(train_csv_path, "lr", mock_logger)
 
     assert isinstance(model, LinearRegression)
@@ -53,6 +56,9 @@ def test_train_model_lr(train_csv_path, mock_logger):
 
 
 def test_train_model_dtr(train_csv_path, mock_logger):
+    """
+    test case for dtr model validation
+    """
     model = train_model(train_csv_path, "dtr", mock_logger)
 
     assert isinstance(model, DecisionTreeRegressor)
@@ -60,6 +66,9 @@ def test_train_model_dtr(train_csv_path, mock_logger):
 
 
 def test_train_model_rfr_rs(train_csv_path, mock_logger):
+    """
+    test case for rfr_rs model validation
+    """
     model = train_model(train_csv_path, "rfr_rs", mock_logger)
 
     assert isinstance(model, RandomizedSearchCV)
@@ -67,6 +76,9 @@ def test_train_model_rfr_rs(train_csv_path, mock_logger):
 
 
 def test_train_model_rfr_gs(train_csv_path, mock_logger):
+    """
+    test case for rfr_gs model validation
+    """
     model = train_model(train_csv_path, "rfr_gs", mock_logger)
 
     assert isinstance(model, GridSearchCV)
@@ -74,5 +86,8 @@ def test_train_model_rfr_gs(train_csv_path, mock_logger):
 
 
 def test_train_model_invalid_name(train_csv_path, mock_logger):
+    """
+    test case for missing model input
+    """
     model = train_model(train_csv_path, "invalid_model", mock_logger)
     assert model is None

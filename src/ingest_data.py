@@ -55,7 +55,7 @@ from datetime import datetime
 from urllib.error import URLError
 import numpy as np
 import pandas as pd
-from six.moves import urllib
+from six.moves import urllib  # type: ignore
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
 
@@ -64,7 +64,7 @@ from src.utils import get_logger
 
 
 def fetch_housing_data(
-    housing_url=config.housing_url,
+    housing_url=config.HOUSING_URL,
     housing_path=config.housing_raw_path,
 ):
     """
@@ -74,7 +74,7 @@ def fetch_housing_data(
 
     Args:
         housing_url (str, optional):URL from which housing data is downloaded.
-        Defaults: config.housing_url.
+        Defaults: config.HOUSING_URL.
         housing_path (str, optional): output path to store the downloaded data.
         Defaults: config.housing_raw_path.
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     print("passed args")
 
     try:
-        logger.info("fetching housing data from %s", config.housing_url)
+        logger.info("fetching housing data from %s", config.HOUSING_URL)
         fetch_housing_data()
         logger.info("fetching data completed")
     except URLError as e:

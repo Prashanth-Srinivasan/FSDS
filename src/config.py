@@ -7,8 +7,8 @@ This is a config file to store all static variables/locations that we need in th
 
 import os
 
-download_path = "https://raw.githubusercontent.com/ageron/handson-ml/master/"
-housing_url = download_path + "datasets/housing/housing.tgz"
+DOWNLOAD_PATH = "https://raw.githubusercontent.com/ageron/handson-ml/master/"
+HOUSING_URL = DOWNLOAD_PATH + "datasets/housing/housing.tgz"
 housing_raw_path = os.path.join(os.getcwd(), "data", "raw")
 housing_processed_path = os.path.join(os.getcwd(), "data", "processed")
 train_housing_path = os.path.join(housing_processed_path, "train")
