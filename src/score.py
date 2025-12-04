@@ -35,19 +35,19 @@ Inputs (via argparse arguments)
 
 Outputs
 -------
-All files are saved inside: ../data/processed
+All prediction files are saved inside: ../output
 
-The script will generate train and test files:
-- /train/train.csv
-- /train/strat_train.csv
-- /test/test.csv
-- /test/strat_test.csv
+The script will generate preditction files:
+- lr_<date>_predictions.csv
+- dtr_<date>_predictions.csv
+- rfr_rs_<date>_predictions.csv
+- rfr_gs_<date>_predictions.csv
 
 Usage
 -----
 Run from terminal:
 
-    python ingest_data.py # fix
+    python score.py # fix
 
 """
 
