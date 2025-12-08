@@ -1,5 +1,5 @@
 [project]
-name = "fsds-assignment"
+name = "housing_price"
 version = "0.1.0"
 description = "Housing Price Prediction"
 readme = "README.md"

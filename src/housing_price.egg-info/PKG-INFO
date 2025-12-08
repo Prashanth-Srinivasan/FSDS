@@ -1,0 +1,25 @@
+Metadata-Version: 2.4
+Name: housing_price
+Version: 0.1.0
+Summary: Housing Price Prediction
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=2.3.5
+Requires-Dist: pandas>=2.3.3
+Requires-Dist: scikit-learn>=1.7.2
+Requires-Dist: scipy>=1.16.3
+Requires-Dist: six>=1.17.0
+Provides-Extra: formatter
+Requires-Dist: black; extra == "formatter"
+Requires-Dist: isort; extra == "formatter"
+Requires-Dist: flake8; extra == "formatter"
+Provides-Extra: plot
+Requires-Dist: matplotlib; extra == "plot"
+Requires-Dist: seaborn; extra == "plot"
+Provides-Extra: test
+Requires-Dist: pytest; extra == "test"
+
+# FSDS
+Full Stack Data Science Program Training
+
+Data : [Housing Dataset](https://github.com/ageron/handson-ml/tree/master/datasets/housing)
