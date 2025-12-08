@@ -9,7 +9,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 
-from src.train import train_model
+from src.housing_price.train import train_model
 
 
 @pytest.fixture

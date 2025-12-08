@@ -60,8 +60,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from src import config
-from src.utils import get_logger
+from src.housing_price import config
+from src.housing_price.utils import get_logger
 
 
 def predict_result(model_path, test_data_path, logger_fn):

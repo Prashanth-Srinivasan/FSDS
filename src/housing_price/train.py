@@ -60,8 +60,8 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.tree import DecisionTreeRegressor
 
-from src import config
-from src.utils import get_logger
+from src.housing_price import config
+from src.housing_price.utils import get_logger
 
 
 def train_model(train_data_set_path, model_name, logger_fn):

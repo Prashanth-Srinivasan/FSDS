@@ -59,8 +59,8 @@ from six.moves import urllib  # type: ignore
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
 
-from src import config
-from src.utils import get_logger
+from src.housing_price import config
+from src.housing_price.utils import get_logger
 
 
 def fetch_housing_data(

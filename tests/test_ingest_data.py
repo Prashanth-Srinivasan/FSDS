@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 import shutil
 
-from src import config
-from src.ingest_data import load_housing_data, data_train_test_split
+from src.housing_price import config
+from src.housing_price.ingest_data import load_housing_data, data_train_test_split
 
 
 def test_data_file_exists():

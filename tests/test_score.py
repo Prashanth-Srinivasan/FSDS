@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 from sklearn.linear_model import LinearRegression
 
-from src.score import predict_result
+from src.housing_price.score import predict_result
 
 
 @pytest.fixture
