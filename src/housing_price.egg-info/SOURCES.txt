@@ -1,8 +1,11 @@
 README.md
 pyproject.toml
+src/__init__.py
 src/housing_price/__init__.py
+src/housing_price/api.py
 src/housing_price/config.py
 src/housing_price/ingest_data.py
+src/housing_price/main.py
 src/housing_price/score.py
 src/housing_price/train.py
 src/housing_price/utils.py

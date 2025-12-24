@@ -1,19 +1,25 @@
-import os
-import pandas as pd
-import numpy as np
-import pytest
+"""
+test_train.py
+--------------
+pytest script for train.py
+
+"""
+
 from unittest.mock import MagicMock
 
+import numpy as np
+import pandas as pd
+import pytest
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 
 from src.housing_price.train import train_model
 
 
 @pytest.fixture
 def sample_train_df():
+    """pytest function to create sample data"""
     np.random.seed(42)
     n = 10000
 
@@ -33,6 +39,7 @@ def sample_train_df():
 
 @pytest.fixture
 def train_csv_path(tmp_path, sample_train_df):
+    """pytest function to save train data in temp location"""
     file_path = tmp_path / "train.csv"
     sample_train_df.to_csv(file_path, index=False)
     return str(file_path)
@@ -40,6 +47,7 @@ def train_csv_path(tmp_path, sample_train_df):
 
 @pytest.fixture
 def mock_logger():
+    """pytest funtion to test logger"""
     logger = MagicMock()
     logger.info = MagicMock()
     return logger

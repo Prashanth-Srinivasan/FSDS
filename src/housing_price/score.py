@@ -1,5 +1,5 @@
 """
-ingest_data.py
+score.py
 --------------
 This script is use to predict the model evaluation on test data.
 
@@ -56,6 +56,7 @@ import os
 from datetime import datetime
 
 import joblib
+import mlflow  # type: ignore
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error
@@ -103,6 +104,10 @@ def predict_result(model_path, test_data_path, logger_fn):
 
     if "rfr" in model_name:
         cvres = model.cv_results_
+        best_index = np.argmax(cvres["mean_test_score"])
+        result_mse = -cvres["mean_test_score"][best_index]
+        result_rmse = np.sqrt(result_mse)
+        result_mae = mean_absolute_error(y_test, pred_result)
         for mean_score, params in zip(cvres["mean_test_score"], cvres["params"]):
             logger_fn.info(
                 "model_name: %s, rmse_score: %s, params: %s",
@@ -122,8 +127,9 @@ def predict_result(model_path, test_data_path, logger_fn):
             result_mae,
         )
 
+    metrics_dic = {"mse": result_mse, "rmse": result_rmse, "mae": result_mae}
     data[model_name + "_predictions"] = pred_result
-    return data
+    return data, metrics_dic
 
 
 if __name__ == "__main__":
@@ -170,44 +176,52 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logger = get_logger("score.py", args.log_file_path, console=True)
+    parent_id = os.environ.get("PARENT_MLFLOW_RUN_ID")
+    with mlflow.start_run(run_id=parent_id, nested=True):
 
-    logger.info("Scoring Starts")
-    logger.info("log_file_location: %s", args.log_file_path)
-    logger.info("test_file_loc: %s", args.test_data_path)
-    logger.info("model_folder_location: %s", args.model_folder)
-    logger.info("model_selection: %s", args.model_name)
-    logger.info("output_path: %s", config.output_path)
+        mlflow.log_param("test_data_path", args.test_data_path)
 
-    # logger.info("log_file_location:{}".format(args.log_file_path))
-    # logger.info("test_file_loc:{}".format(args.test_data_path))
-    # logger.info("model folder location {}".format(args.model_folder))
-    # logger.info("model_selection:{}".format(args.model_name))
-    # logger.info(f"output_path:{}".format(config.output_path))
+        logger = get_logger("score.py", args.log_file_path, console=True)
 
-    predicted_data = predict_result(
-        os.path.join(args.model_folder, args.model_name),
-        args.test_data_path,
-        logger,
-    )
+        logger.info("Scoring Starts")
+        logger.info("log_file_location: %s", args.log_file_path)
+        logger.info("test_file_loc: %s", args.test_data_path)
+        logger.info("model_folder_location: %s", args.model_folder)
+        logger.info("model_selection: %s", args.model_name)
+        logger.info("output_path: %s", config.output_path)
 
-    os.makedirs(config.output_path, exist_ok=True)
+        predicted_data, metrics = predict_result(
+            os.path.join(args.model_folder, args.model_name),
+            args.test_data_path,
+            logger,
+        )
 
-    predicted_data.to_csv(
-        os.path.join(
+        # for metric_name, metric_value in metrics.items():
+        #     mlflow.log_metric(metric_name, metric_value)
+        metric_key = list(metrics.keys())
+        metric_value = list(metrics.values())
+        mlflow.log_metric(metric_key[0], metric_value[0])
+        mlflow.log_metric(metric_key[1], metric_value[1])
+        mlflow.log_metric(metric_key[2], metric_value[2])
+
+        os.makedirs(config.output_path, exist_ok=True)
+
+        pred_file_path = os.path.join(
             config.output_path,
             args.model_name.split(".pkl")[0] + "_predictions.csv",
-        ),
-        index=False,
-    )
-    pred_path = os.path.join(
-        config.output_path,
-        args.model_name.split(".pkl")[0] + "_predictions.csv",
-    )
+        )
 
-    logger.info("prediction result saved: %s", pred_path)
+        predicted_data.to_csv(
+            os.path.join(
+                config.output_path,
+                args.model_name.split(".pkl")[0] + "_predictions.csv",
+            ),
+            index=False,
+        )
 
-    logger.info("Scoring Ends")
-    end = datetime.now()
-    exec_time = round((end - start).seconds, 4)
-    logger.info("execution time for ingest_data script %s s", exec_time)
+        logger.info("prediction result saved: %s", pred_file_path)
+
+        logger.info("Scoring Ends")
+        end = datetime.now()
+        exec_time = round((end - start).seconds, 4)
+        logger.info("execution time for ingest_data script %s s", exec_time)

@@ -1,10 +1,11 @@
 [project]
 name = "housing_price"
-version = "0.1.0"
+version = "0.2.0"
 description = "Housing Price Prediction"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "mlflow>=3.7.0",
     # Common dependencies for all environments
     "numpy>=2.3.5",
     "pandas>=2.3.3",
@@ -12,6 +13,12 @@ dependencies = [
     "scipy>=1.16.3",
     "six>=1.17.0",
 ]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [dependency-groups]
 dev = [
@@ -34,3 +41,14 @@ test = [
     # optional testing dependencies
     "pytest"
 ]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.black]
+line-length = 88
+
+[flake8]
+max-line-length = 88
+

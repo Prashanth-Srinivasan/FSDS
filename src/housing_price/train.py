@@ -52,9 +52,13 @@ Run from terminal:
 import argparse
 import os
 from datetime import datetime
-from scipy.stats import randint
-import pandas as pd
+
 import joblib
+import mlflow  # type: ignore
+import mlflow.sklearn  # type: ignore
+import pandas as pd
+from mlflow.exceptions import MlflowException
+from scipy.stats import randint
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
@@ -203,23 +207,59 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logger = get_logger("train.py", args.log_file_path, console=True)
+    parent_id = os.environ.get("PARENT_MLFLOW_RUN_ID")
+    with mlflow.start_run(run_id=parent_id, nested=True):
 
-    logger.info("Data Training Starts")
-    logger.info("train_file_loc: %s", args.train_data_path)
-    logger.info("model_selection: %s", args.model_name)
+        mlflow.log_param("model_name", args.model_name)
+        mlflow.log_param("train_data_path", args.train_data_path)
 
-    model = train_model(args.train_data_path, args.model_name, logger)
+        logger = get_logger("train.py", args.log_file_path, console=True)
 
-    logger.info("data training end")
+        logger.info("Data Training Starts")
+        logger.info("train_file_loc: %s", args.train_data_path)
+        logger.info("model_selection: %s", args.model_name)
 
-    final_model = args.model_name + "_" + str(datetime.now().date()) + ".pkl"
+        model = train_model(args.train_data_path, args.model_name, logger)
 
-    joblib.dump(model, os.path.join(args.output_folder, final_model))
-    model_path = os.path.join(args.output_folder, final_model)
-    logger.info("model_output_loc: %s", model_path)
-    logger.info("model saved completed")
+        if hasattr(model, "best_params_"):
+            mlflow.log_params(model.best_params_)
 
-    end = datetime.now()
-    exec_time = round((end - start).seconds, 4)
-    logger.info("execution time for ingest_data script %s s", exec_time)
+        logger.info("data training end")
+
+        final_model = args.model_name + ".pkl"
+
+        os.makedirs(args.output_folder, exist_ok=True)
+
+        joblib.dump(model, os.path.join(args.output_folder, final_model))
+        model_path = os.path.join(args.output_folder, final_model)
+        logger.info("model_output_loc: %s", model_path)
+        logger.info("model saved completed")
+
+        REGISTERED_MODEL_NAME = "BestHousingModel"
+        clean_model_name = args.model_name + "_" + str(datetime.now().date())
+        try:
+            mlflow.sklearn.log_model(
+                sk_model=joblib.load(model_path),
+                name=clean_model_name,
+            )
+
+            mlflow.log_artifact(model_path)
+
+            MODEL_URI = f"runs:/{mlflow.active_run().info.run_id}/{clean_model_name}"
+            model_details = mlflow.register_model(
+                model_uri=MODEL_URI, name=REGISTERED_MODEL_NAME
+            )
+
+            logger.info(
+                "Model registered with name: %s, version: %s",
+                REGISTERED_MODEL_NAME,
+                model_details.version,
+            )
+
+        except (MlflowException, FileNotFoundError) as e:
+            logger.error("Model registration failed: %s", e)
+
+        end = datetime.now()
+        exec_time = round((end - start).seconds, 4)
+
+        logger.info("execution time for ingest_data script %s s", exec_time)

@@ -1,6 +1,10 @@
 __pycache__/
 .venv
+.uv
 *.csv
 *.pkl
 *.tgz
 *.log
+mlruns/
+mlartifacts/
+mlflow.db

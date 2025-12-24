@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+.env
+
+logs/
+outputs/
+mlruns/
+mlflow.db
+
+dist/
+.eggs/
+*.egg-info/
+

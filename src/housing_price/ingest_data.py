@@ -53,11 +53,13 @@ import os
 import tarfile
 from datetime import datetime
 from urllib.error import URLError
+
+import mlflow  # type: ignore
 import numpy as np
 import pandas as pd
 from six.moves import urllib  # type: ignore
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedShuffleSplit, train_test_split
 
 from src.housing_price import config
 from src.housing_price.utils import get_logger
@@ -148,7 +150,20 @@ def data_train_test_split(housing_data):
     )
 
     housing_cat = housing_data[["ocean_proximity"]]
-    housing_prepared = housing_tr.join(pd.get_dummies(housing_cat, drop_first=True))
+
+    housing_dummies = pd.get_dummies(
+        housing_cat, prefix="ocean_proximity", drop_first=False
+    )
+
+    housing_dummies = housing_dummies.rename(
+        columns={
+            "ocean_proximity_NEAR BAY": "ocean_proximity_NEAR_BAY",
+            "ocean_proximity_NEAR OCEAN": "ocean_proximity_NEAR_OCEAN",
+            "ocean_proximity_<1H OCEAN": "ocean_proximity_LESS_THAN_1H_OCEAN",
+        }
+    )
+
+    housing_prepared = housing_tr.join(housing_dummies)
 
     housing_final = housing_prepared.join(housing_labels)
 
@@ -165,6 +180,12 @@ def data_train_test_split(housing_data):
 
     os.makedirs(config.train_housing_path, exist_ok=True)
     os.makedirs(config.test_housing_path, exist_ok=True)
+
+    train_data = train_data[config.FEATURE_ORDER]
+    test_data = test_data[config.FEATURE_ORDER]
+    strat_train_data = strat_train_data[config.FEATURE_ORDER]
+    strat_test_data = strat_test_data[config.FEATURE_ORDER]
+
     train_data.to_csv(
         os.path.join(config.train_housing_path, "train.csv"),
         index=False,
@@ -224,38 +245,48 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    logger = get_logger("ingest_data.py", args.log_file_path, console=True)
+    parent_id = os.environ.get("PARENT_MLFLOW_RUN_ID")
+    with mlflow.start_run(run_id=parent_id, nested=True):
 
-    print("passed args")
+        mlflow.log_param("raw_data_path", config.housing_raw_path)
+        mlflow.log_param("processed_train_path", config.train_housing_path)
+        mlflow.log_param("processed_test_path", config.test_housing_path)
 
-    try:
-        logger.info("fetching housing data from %s", config.HOUSING_URL)
-        fetch_housing_data()
-        logger.info("fetching data completed")
-    except URLError as e:
-        logger.warning(
-            "Download failed, switching to local copy. Error: %s",
-            e,
-            exc_info=True,
+        logger = get_logger("ingest_data.py", args.log_file_path, console=True)
+
+        try:
+            logger.info("fetching housing data from %s", config.HOUSING_URL)
+            fetch_housing_data()
+            logger.info("fetching data completed")
+        except URLError as e:
+            logger.warning(
+                "Download failed, switching to local copy. Error: %s",
+                e,
+                exc_info=True,
+            )
+
+        housing = load_housing_data()
+        logger.info("train_data_path: %s", args.train_data_path)
+        logger.info("test_data_path: %s", args.test_data_path)
+        logger.info("fetched data size %s", housing.shape)
+        logger.info("starting train-test split with test size 0.2")
+        train_set, test_set, strat_train_set, strat_test_set = data_train_test_split(
+            housing
+        )
+        logger.info(
+            "completed train-test split with train_size %s and test_size %s",
+            train_set.shape,
+            test_set.shape,
         )
 
-    housing = load_housing_data()
-    logger.info("train_data_path: %s", args.train_data_path)
-    logger.info("test_data_path: %s", args.test_data_path)
-    logger.info("fetched data size %s", housing.shape)
-    logger.info("starting train-test split with test size 0.2")
-    train_set, test_set, strat_train_set, strat_test_set = data_train_test_split(
-        housing
-    )
-    logger.info(
-        "completed train-test split with train_size %s and test_size %s",
-        train_set.shape,
-        test_set.shape,
-    )
+        mlflow.log_param("train_rows", train_set.shape[0])
+        mlflow.log_param("test_rows", test_set.shape[0])
+        mlflow.log_param("strat_train_rows", strat_train_set.shape[0])
+        mlflow.log_param("strat_test_rows", strat_test_set.shape[0])
 
-    end = datetime.now()
-    exec_time = round((end - start).seconds, 4)
-    logger.info(
-        "execution time for ingest_data script %s s",
-        exec_time,
-    )
+        end = datetime.now()
+        exec_time = round((end - start).seconds, 4)
+        logger.info(
+            "execution time for ingest_data script %s s",
+            exec_time,
+        )
