@@ -88,25 +88,25 @@ It includes:
 
 ### Ingest Data
 ```
-uv run src/housing_price/ingest_data.py
+uv run python -m housing_price/ingest_data.py
 ```
 ### Training
 ```
-uv run src/housing_price/train.py \
+uv run python -m housing_price/train.py \
     --train_data_path data/processed/train.csv \
     --model_name lr \
     --save_dir artifacts
 ```
 ### Scoring
 ```
-uv run src/housing_price/score.py \
+uv run python -m housing_price/score.py \
     --test_data_path data/processed/test.csv \
     --model_name lr.pkl \
     --model_folder artifacts
 ```
 ### Run Entire Pipeline
 ```
-uv run src/housing_price/main.py \
+uv run python -m housing_price/main.py \
     --model_name lr \
     --run_name run_001
 ```

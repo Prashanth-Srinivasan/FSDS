@@ -8,7 +8,6 @@ house prices. It includes health checks and a /predict endpoint.
 """
 
 import os
-from contextlib import asynccontextmanager
 
 import joblib
 import pandas as pd
@@ -17,28 +16,33 @@ from pydantic import BaseModel, Field, model_validator
 
 from housing_price import config
 
-
-# FastAPI app with lifespan
-@asynccontextmanager
-async def lifespan_handler(fastapi_app: FastAPI):
-    """Lifespan handler to load the model on startup."""
-    model_path = os.path.join(config.artifacts_path, config.BEST_MODEL)
-    if not os.path.exists(model_path):
-        raise RuntimeError(f"Model not found at {model_path}")
-    fastapi_app.state.MODEL = joblib.load(model_path)
-    yield  # application runs
-    # Cleanup if necessary
-
-
+# FastAPI App
 app = FastAPI(
     title="House Price Prediction API",
     version="0.2.0",
     description="Predict house prices using a trained ML model",
-    lifespan=lifespan_handler,
 )
 
 
-# Request schema
+# Model Loader
+def get_model():
+    """
+    Lazily load the trained model on first request.
+
+    This avoids slow container startup and Azure health check timeouts.
+    """
+    if not hasattr(app.state, "MODEL"):
+        model_path = os.path.join(config.artifacts_path, config.BEST_MODEL)
+
+        if not os.path.exists(model_path):
+            raise RuntimeError(f"Model not found at {model_path}")
+
+        app.state.MODEL = joblib.load(model_path)
+
+    return app.state.MODEL
+
+
+# Request Schema
 class HouseFeatures(BaseModel):
     """
     Schema for house features sent in prediction requests.
@@ -81,21 +85,23 @@ class HouseFeatures(BaseModel):
         return self
 
 
-# Root
+# Endpoints
 @app.get("/")
 def root():
     """Root endpoint for quick status check."""
     return {"message": "House Price Prediction API is running"}
 
 
-# Health
 @app.get("/health")
 def health():
-    """Health check endpoint."""
+    """
+    Health check endpoint.
+
+    Must stay lightweight for Azure health probes.
+    """
     return {"status": "ok"}
 
 
-# Prediction
 @app.post("/predict")
 def predict(features: HouseFeatures):
     """
@@ -105,10 +111,11 @@ def predict(features: HouseFeatures):
         features (HouseFeatures): Input JSON schema containing house features.
 
     Returns:
-        dict: Contains prediction value and model used.
+        dict: Prediction result and model metadata.
     """
     try:
-        model = app.state.MODEL
+        model = get_model()
+
         feature_order = config.FEATURE_ORDER[:-1]  # Exclude target column
         input_df = pd.DataFrame([features.model_dump()])[feature_order]
         input_df = input_df.astype(int, errors="ignore")

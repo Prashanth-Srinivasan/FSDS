@@ -5,6 +5,7 @@ description = "Housing Price Prediction"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "evidently>=0.7.19",
     "mlflow>=3.7.0",
     # Common dependencies for all environments
     "numpy>=2.3.5",

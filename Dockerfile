@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.13-slim AS builder
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -7,23 +7,28 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock README.md ./
+COPY src ./src
 
-RUN pip install --no-cache-dir uv \
- && uv pip install --system --no-cache \
-    fastapi \
-    uvicorn \
-    pandas \
-    numpy \
-    scikit-learn \
-    joblib
+RUN pip install --no-cache-dir uv
+RUN uv pip install --system --no-cache .
 
+# -------------------------
+
+FROM python:3.13-slim
+
+WORKDIR /app
+
+COPY --from=builder /usr/local /usr/local
 COPY src ./src
 COPY artifacts ./artifacts
 
+RUN mkdir -p artifacts logs mlruns data
+
 ENV PYTHONPATH=/app/src
-ENV PORT=8000
+ENV MLFLOW_TRACKING_URI=sqlite:///mlflow.db
 
 EXPOSE 8000
 
-CMD ["uvicorn", "housing_price.api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn housing_price.api:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]
+

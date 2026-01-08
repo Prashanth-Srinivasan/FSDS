@@ -1,40 +1,47 @@
-image : python:3.13
+image: python:3.13
 
 stages:
   - lint
   - test
   - build
   - verify
-  - docker-build
-  - docker-push
+  - monitor
+  - kaniko-build-and-push
 
+# Global variables
 variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   PYTHON_VERSION: "3.13"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  DOCKER_TLS_CERTDIR: ""
+
+cache:
+  paths:
+    - .cache/pip
 
 before_script:
-  - python3 --version
+  - python --version
   - pip install --upgrade pip setuptools wheel
   - pip install isort black flake8 pytest
 
-# Lint: isort, black, flake8
+# ------------------------
+# LINT
+# ------------------------
 lint:
   stage: lint
   script:
     - echo "Running isort..."
     - isort . --check-only
-
     - echo "Running black..."
     - black . --check
-
     - echo "Running flake8..."
     - flake8 .
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   allow_failure: false
 
-
-# Unit Tests
+# ------------------------
+# TEST
+# ------------------------
 test:
   stage: test
   script:
@@ -48,7 +55,9 @@ test:
       - .pytest_cache/
     expire_in: 7 days
 
-# Build wheel package
+# ------------------------
+# BUILD (wheel)
+# ------------------------
 build:
   stage: build
   script:
@@ -61,62 +70,75 @@ build:
       - dist/*.whl
     expire_in: 7 days
 
-# Verify: install the generated wheel and import it
+# ------------------------
+# VERIFY BUILD
+# ------------------------
 verify-build:
   stage: verify
   needs: ["build"]
   script:
-    - echo "Wheel files downloaded:"
-    - ls -R dist/
-
+    - echo "Available wheel files:"
+    - ls -l dist/
     - pip install dist/*.whl
-
-    - echo "Running workflow script..."
     - |
-        python << 'EOF'
-        import datetime
+      python << 'EOF'
+      import datetime
 
-        def log(msg):
-            print(f"{datetime.datetime.now().isoformat()} - {msg}")
+      def log(msg):
+          print(f"{datetime.datetime.now().isoformat()} - {msg}")
 
-        log("Testing import of package...")
-        try:
-            import housing_price
-            log("Import successful!")
-        except Exception as e:
-            log(f"Import failed: {e}")
-            raise
+      log("Testing package import...")
+      try:
+          import housing_price
+          log("Import successful!")
+      except Exception as e:
+          log(f"Import failed: {e}")
+          raise
 
-        log("Workflow completed!")
-        EOF
+      log("Verification completed!")
+      EOF
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-# Docker build
-docker-build:
-  stage: docker-build
-  image: docker:24
-  services:
-    - docker:24-dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-  before_script: []
+# ------------------------
+# DATA DRIFT MONITORING
+# ------------------------
+drift-monitoring:
+  stage: monitor
+  image: python:3.10   # Evidently is safest on 3.10
+  needs: ["verify-build"]
   script:
-    - docker build -t $ACR_LOGIN_SERVER/$DOCKER_IMAGE_NAME:latest .
+    - python --version
+    - pip install --upgrade pip
+    - pip install evidently>=0.7.19 pandas scikit-learn
+    - export PYTHONPATH="$CI_PROJECT_DIR/src"
+    - python monitoring/drift_report.py
+  artifacts:
+    when: always
+    paths:
+      - reports/
+    expire_in: 14 days
+  allow_failure: false
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-# Docker push to ACR
-docker-push:
-  stage: docker-push
-  image: docker:24
-  services:
-    - docker:24-dind
-  variables:
-    DOCKER_TLS_CERTDIR: ""
-  before_script: []
-  script:
-    - echo "$ACR_PASSWORD" | docker login $ACR_LOGIN_SERVER -u "$ACR_USERNAME" --password-stdin
-    - docker push $ACR_LOGIN_SERVER/$DOCKER_IMAGE_NAME:latest
+
+# ------------------------
+# KANIKO BUILD & PUSH (ACR)
+# ------------------------
+kaniko-build-and-push:
+  stage: kaniko-build-and-push
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]  # Override entrypoint to empty
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  before_script:
+    - echo "{\"auths\":{\"$ACR_LOGIN_SERVER\":{\"auth\":\"$(printf "%s:%s" "$ACR_USERNAME" "$ACR_PASSWORD" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor
+      --context=$CI_PROJECT_DIR
+      --dockerfile=$CI_PROJECT_DIR/Dockerfile
+      --destination=$ACR_LOGIN_SERVER/housing-price-api:$CI_COMMIT_SHORT_SHA
+      --destination=$ACR_LOGIN_SERVER/housing-price-api:latest
+      --cache=true

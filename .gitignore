@@ -2,7 +2,10 @@ __pycache__/
 .venv
 .uv
 *.csv
+!data/processed/drift_reference/drift_reference.csv 
+!data/processed/train/train.csv
 *.pkl
+!artifacts/lr.pkl
 *.tgz
 *.log
 mlruns/
